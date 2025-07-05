@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";;
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
   subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -23,9 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`}  >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className="bg-gradient-to-br from-indigo-50 via-white to-purple-100 min-h-screen"
+      
       >
         {children}
       </body>
