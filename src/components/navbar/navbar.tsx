@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import clsx from 'clsx'
+import Link from "next/link"
 
 const navItems = [
   { name: "Features", href: "#features" },
@@ -83,10 +84,16 @@ useEffect(() => {
 
           {/* Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" className="text-sm px-4">
-              Login
-            </Button>
-            <Button className="text-sm px-5 py-2">Try It Free</Button>
+           <Link href="/sign-in">
+  <Button variant="ghost" className="text-sm px-4">
+    Login
+  </Button>
+</Link>
+            <Link href="/sign-up">
+  <Button className="text-sm px-5 py-2">
+    Try It Free
+  </Button>
+</Link>
           </div>
 
           {/* Mobile menu toggle */}

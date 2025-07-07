@@ -6,12 +6,13 @@ import {
   TrendingUp,
   PenLine,
   ClipboardCopy,
-  Link,
+  Link as LucideLink,
   Repeat,
   ExternalLink,
   FileText,
   Sparkles,
 } from "lucide-react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 type Feature = {
@@ -27,7 +28,7 @@ const desktopFeatures: Feature[] = [
   { icon: PenLine, label: "AI-Written Blogs", x: 360, y: 60, delay: 0.1 },
   { icon: ClipboardCopy, label: "Copy to Clipboard", x: 80, y: 340, delay: 0.2 },
   { icon: FileText, label: "Meta Descriptions", x: 390, y: 360, delay: 0.3 },
-  { icon: Link, label: "Internal Links", x: 30, y: 200, delay: 0.4 },
+  { icon: LucideLink, label: "Internal Links", x: 30, y: 200, delay: 0.4 },
   { icon: ExternalLink, label: "Export Anywhere", x: 310, y: 10, delay: 0.5 },
   { icon: Repeat, label: "Auto Posting", x: 190, y: 420, delay: 0.6 },
 ]
@@ -175,10 +176,12 @@ export default function Home() {
                 visible: { opacity: 1, y: 0 },
               }}
             >
+              <Link href="/sign-up">
               <Button variant="outline"
                 className="relative overflow-hidden border-2 border-transparent bg-white/80 backdrop-blur-sm px-6 py-3 text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-300 hover:scale-105 hover:border-blue-400 shadow-md">
                 Try It Free
               </Button>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
