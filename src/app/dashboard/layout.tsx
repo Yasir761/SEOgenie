@@ -1,18 +1,33 @@
-// app/dashboard/layout.tsx
-import React from "react";
-import Sidebar from "@/app/dashboard/components/Sidebar" 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-100">
-      {/* Sidebar or Header */}
-      <aside className="w-64 h-screen border-r">
-        <Sidebar />
-      </aside>
+import { ReactNode } from "react"
+import { Inter, Poppins } from "next/font/google"
+import { DashboardShell } from "@/components/shell"
 
-      {/* Main content */}
-      <main className="flex-1 p-6">
-        {children}
-      </main>
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+})
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["600", "700"],
+  variable: "--font-poppins",
+})
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+//     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+// <body className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
+
+//     <div className="min-h-screen w-full bg-transparent"> 
+//       <DashboardShell>{children}</DashboardShell>
+//     </div>
+//   </body>
+// </html>
+
+    <div className="min-h-screen w-full bg-transparent">
+    <DashboardShell>{children}</DashboardShell>
     </div>
-  );
+  )
 }
