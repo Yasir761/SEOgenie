@@ -1,5 +1,5 @@
 "use client"
-
+import { useClerk } from "@clerk/nextjs"
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/sidebar"
 
 export function NavUser({
+
+  
   user,
 }: {
   user: {
@@ -40,6 +42,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
 
+  const { signOut } = useClerk()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -110,7 +113,7 @@ export function NavUser({
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <IconLogout className="size-4 mr-2" />
+              <IconLogout onClick={() => signOut()} className="size-4 mr-2" />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

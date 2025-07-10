@@ -1,12 +1,20 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
+// src/middleware.ts
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default clerkMiddleware({
-  publicRoutes: ['/sign-in(.*)', '/sign-up(.*)', '/', '/api/public(.*)'],
-})
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)']);
+
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!userId && isProtectedRoute(req)) {
+    // Redirects unauthenticated users to the sign-in page
+    return redirectToSignIn();
+  }
+});
 
 export const config = {
   matcher: [
-    // Always run for API and app routes, skip static files
-    '/((?!_next|.*\\..*|favicon.ico).*)',
+    // include all routes except _next, static assets
+    '/((?!_next|static|.*\\.[^\\/]+$).*)',
   ],
-}
+};

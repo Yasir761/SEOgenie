@@ -43,16 +43,16 @@ const sidebarConfig = {
       url: "/dashboard/create",
       icon: IconFileText,
     },
-    {
-      title: "Strategy AI",
-      url: "/dashboard/strategy",
-      icon: IconBulb,
-    },
-    {
-      title: "Analytics",
-      url: "/dashboard/analytics",
-      icon: IconChartArcs,
-    },
+    // {
+    //   title: "Strategy AI",
+    //   url: "/dashboard/strategy",
+    //   icon: IconBulb,
+    // },
+    // {
+    //   title: "Analytics",
+    //   url: "/dashboard/analytics",
+    //   icon: IconChartArcs,
+    // },
     {
       title: "Your Blogs",
       url: "/dashboard/blogs",
