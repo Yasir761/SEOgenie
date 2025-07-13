@@ -1,4 +1,4 @@
-import IntegrationPanel from "@/app/dashboard/components/IntegrationPanel"
+import IntegrationPanel from "../components/IntegrationPanel"
 
 export default function IntegrationsPage() {
   return (
