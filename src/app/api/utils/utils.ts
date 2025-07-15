@@ -1,4 +1,4 @@
-// utils.ts
+
 import { pipeline } from "@xenova/transformers";
 
 let extractor: any = null;
