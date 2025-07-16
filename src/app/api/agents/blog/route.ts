@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPrompt } from "./prompt";
+import { BlogOutputSchema } from "./schema";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -22,11 +23,11 @@ export async function POST(req: NextRequest) {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini" , // or fallback to "gpt-3.5-turbo"
+        model: "gpt-4o-mini", // or fallback
         messages: [
           { role: "system", content: "You are a helpful blog writer." },
           { role: "user", content: prompt }
@@ -41,8 +42,20 @@ export async function POST(req: NextRequest) {
 
     console.log("📨 Full OpenAI raw response:", JSON.stringify(data, null, 2));
 
-    console.log("🧠 Blog generated:", blog);
-    return NextResponse.json({ keyword, blog });
+    const result = BlogOutputSchema.safeParse({ blog, keyword });
+
+    if (!result.success) {
+      console.error("❌ Blog schema validation failed:", result.error.format());
+      return NextResponse.json({
+        keyword,
+        error: "Blog output did not meet expected format",
+        issues: result.error.flatten(),
+        raw: blog
+      }, { status: 422 });
+    }
+
+    console.log("🧠 Blog generated:", result.data.blog);
+    return NextResponse.json(result.data);
   } catch (err) {
     console.error("Writer Agent Error:", err);
     return NextResponse.json({ error: "Failed to generate blog." }, { status: 500 });
