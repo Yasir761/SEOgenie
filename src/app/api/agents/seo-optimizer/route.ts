@@ -1,16 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPrompt } from "./prompt";
-import { SEOOptimizerSchema } from "./schema"; 
+import { SEOOptimizerSchema } from "./schema";
+import {
+  countTokens,
+  isWithinTokenLimit,
+  splitTextByTokenLimit,
+} from "@/app/api/utils/tokenUtils";
+
+const MAX_TOKENS = 2048;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { keyword, outline, tone, voice, tags } = body;
 
   if (!keyword || !outline || !tone || !voice || !tags) {
-    return NextResponse.json({ error: "Missing one or more required fields" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing one or more required fields" },
+      { status: 400 }
+    );
   }
 
   const userPrompt = createPrompt(keyword, outline, tone, voice, tags);
+
+  // ✅ Token safety check
+  if (!isWithinTokenLimit(userPrompt, MAX_TOKENS)) {
+    const trimmed = splitTextByTokenLimit(userPrompt, MAX_TOKENS)[0] || "";
+    console.warn("⚠️ Prompt too long. Using trimmed version.");
+    return NextResponse.json(
+      {
+        warning: "Prompt exceeded token limit. Try simplifying your input.",
+        trimmedPrompt: trimmed,
+        tokenCount: countTokens(trimmed),
+      },
+      { status: 413 }
+    );
+  }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

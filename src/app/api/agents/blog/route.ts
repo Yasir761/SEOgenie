@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPrompt } from "./prompt";
 import { BlogOutputSchema } from "./schema";
+import {
+  countTokens,
+  isWithinTokenLimit,
+  splitTextByTokenLimit,
+} from "@/app/api/utils/tokenUtils";
+
+const MAX_TOKENS = 2048;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -16,25 +23,43 @@ export async function POST(req: NextRequest) {
     tone,
     voice,
     title: seo.optimized_title,
-    meta: seo.meta_description
+    meta: seo.meta_description,
   });
+
+  // ✅ Token safety check
+  if (!isWithinTokenLimit(prompt, MAX_TOKENS)) {
+    console.warn("⚠️ Prompt exceeds token limit. Splitting...");
+
+    const chunks = splitTextByTokenLimit(prompt, MAX_TOKENS);
+
+    if (chunks.length === 0) {
+      return NextResponse.json({ error: "Failed to split prompt safely" }, { status: 500 });
+    }
+
+    // Optionally: You can later stitch multiple chunks and call OpenAI multiple times if needed
+    return NextResponse.json({
+      warning: "Prompt was too long and has been trimmed for now. Please shorten input or upgrade plan.",
+      trimmedPrompt: chunks[0],
+      tokens: countTokens(chunks[0])
+    }, { status: 413 }); // Payload Too Large
+  }
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // or fallback
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: "You are a helpful blog writer." },
-          { role: "user", content: prompt }
+          { role: "user", content: prompt },
         ],
         temperature: 0.7,
-        max_tokens: 2048
-      })
+        max_tokens: MAX_TOKENS,
+      }),
     });
 
     const data = await response.json();
@@ -50,7 +75,7 @@ export async function POST(req: NextRequest) {
         keyword,
         error: "Blog output did not meet expected format",
         issues: result.error.flatten(),
-        raw: blog
+        raw: blog,
       }, { status: 422 });
     }
 

@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPrompt } from "./prompt";
 import { BlogOutlineSchema } from "./schema";
+import {
+  countTokens,
+  isWithinTokenLimit,
+  splitTextByTokenLimit,
+} from "@/app/api/utils/tokenUtils";
+
+const MAX_TOKENS = 2048;
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -11,6 +18,17 @@ export async function POST(req: NextRequest) {
   }
 
   const systemPrompt = createPrompt(keyword, tone);
+
+  // ✅ Token safety check
+  if (!isWithinTokenLimit(systemPrompt, MAX_TOKENS)) {
+    const trimmed = splitTextByTokenLimit(systemPrompt, MAX_TOKENS)[0] || "";
+    console.warn("⚠️ Prompt too long. Using trimmed prompt.");
+    return NextResponse.json({
+      warning: "Prompt exceeded token limit. Try with a shorter topic.",
+      trimmedPrompt: trimmed,
+      tokens: countTokens(trimmed),
+    }, { status: 413 });
+  }
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -32,11 +50,11 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
     const rawOutput = data.choices?.[0]?.message?.content || "";
 
-    // Convert bullet point text → string[]
+    // 🧠 Convert output into clean bullet points
     const outline = rawOutput
-      .split(/\n|•|-/) // split by line, bullet, or dash
-      .map((line: string) => line.trim())
-      .filter((line: string) => line.length > 3); // remove empty or short lines
+      .split(/\n|•|-/)
+      .map((line:string) => line.trim())
+      .filter((line:string) => line.length > 3);
 
     const result = BlogOutlineSchema.safeParse({ outline });
 
