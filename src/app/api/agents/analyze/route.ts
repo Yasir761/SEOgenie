@@ -50,12 +50,12 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "llama3-70b-8192",
         messages: [
           { role: "system", content: "You are an SEO analyst and strategist." },
           { role: "user", content: prompt }
         ],
-        temperature: 0.4
+        temperature: 0.3
       })
     })
 

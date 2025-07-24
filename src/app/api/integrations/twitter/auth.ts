@@ -1,10 +1,14 @@
 import OAuth from "oauth-1.0a";
 import crypto from "crypto";
-import { NextRequest } from "next/server";
 
 const consumerKey = process.env.X_API_KEY!;
 const consumerSecret = process.env.X_API_SECRET!;
 const callbackUrl = process.env.TWITTER_CALLBACK_URL!;
+
+// Validate required envs at runtime (fail fast in dev)
+if (!consumerKey || !consumerSecret || !callbackUrl) {
+  throw new Error("Missing Twitter API credentials or callback URL in environment variables.");
+}
 
 const oauth = new OAuth({
   consumer: { key: consumerKey, secret: consumerSecret },
@@ -14,10 +18,15 @@ const oauth = new OAuth({
   },
 });
 
+type OAuthToken = { key: string; secret: string };
+
+// Generates OAuth 1.0a Auth Header for Twitter API request
 export function getTwitterAuthHeader(
   url: string,
-  method: string,
-  token: { key: string; secret: string } = { key: "", secret: "" }
+  method: "GET" | "POST",
+  token?: OAuthToken
 ) {
-  return oauth.toHeader(oauth.authorize({ url, method }, token));
+  const oauthToken = token || { key: "", secret: "" };
+  const oauthData = oauth.authorize({ url, method }, oauthToken);
+  return oauth.toHeader(oauthData);
 }

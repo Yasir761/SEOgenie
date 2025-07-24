@@ -1,27 +1,37 @@
 export function createPrompt(keyword: string, serp: any[]): string {
   const topResults = serp.slice(0, 5).map((result, i) => {
-    return `Result ${i + 1}:\nTitle: ${result.title}\nLink: ${result.link}\nSnippet: ${result.snippet}\n`
-  }).join("\n")
+    return `Result ${i + 1}:
+Title: ${result.title}
+Link: ${result.link}
+Snippet: ${result.snippet}`
+  }).join("\n\n");
 
   return `
-You're an advanced SEO strategist AI.
+You are a professional SEO strategist and digital marketing expert trained in search intent analysis and SERP behavior.
 
-Given the following keyword: "${keyword}" and these top 5 Google search results:
+Your task is to analyze the following data for the keyword: "${keyword}".
 
+Top Google Search Results:
 ${topResults}
 
-Analyze the search intent, SEO patterns, and competition level.
+Analyze the above and generate **ONLY** a valid, concise JSON response with these fields:
 
-Only respond in valid JSON like this:
 {
-  "intent": "Informational",
-  "competition_level": "Medium",
-  "keyword_difficulty_score": 0.65,
-  "suggested_strategy": "Create a comparison post including tools with schema markup.",
-  "title_suggestions": ["Top AI Tools for Solopreneurs in 2025", "Best AI Productivity Tools for One-Person Businesses"],
-  "meta_description": "Looking to grow your solopreneur business? Discover powerful AI tools that save time, boost marketing, and simplify your work."
+  "intent": "<Informational | Navigational | Transactional>",
+  "competition_level": "<Low | Medium | High>",
+  "keyword_difficulty_score": <0.0 to 1.0 as float>,
+  "suggested_strategy": "<Concise strategy, avoid vague tips, use strong SEO logic>",
+  "title_suggestions": ["...", "..."], // 2–3 highly engaging, SEO-friendly titles
+  "meta_description": "<High-converting meta description (max 160 chars), no fluff>"
 }
 
-No commentary. Just pure JSON.
-  `
+✅ Only return JSON — no explanations.
+✅ Be grammatically correct and clear.
+✅ Never hallucinate or guess data you don’t have.
+
+IMPORTANT:
+- Use SERP patterns and snippet language to derive **intent and competition**.
+- Score difficulty from 0 to 1 based on how competitive the SERP looks.
+- Keep title suggestions useful for content creators.
+  `.trim();
 }

@@ -4,7 +4,7 @@ export function createPrompt({
   tone,
   voice,
   title,
-  meta
+  meta,
 }: {
   keyword: string;
   outline: string;
@@ -14,27 +14,32 @@ export function createPrompt({
   meta: string;
 }) {
   return `
-You are an expert blog writer AI.
+You are a professional blog writer AI trained in SEO, clarity, and user engagement. Follow all instructions strictly.
 
-Write a high-quality blog post using the following data:
-
+Input:
 - Keyword: "${keyword}"
 - Title: "${title}"
 - Meta Description: "${meta}"
 - Tone: "${tone}"
 - Voice Style: "${voice}"
-
-Blog Outline:
+- Blog Outline: 
 ${outline}
 
-Instructions:
-- Write a blog post based on this outline.
-- Maintain the given tone and voice throughout.
-- Write at least 800–1000 words.
-- Format sections with headings and subheadings.
-- Include a brief intro and a strong conclusion.
-- Do not include hashtags or bullet points unless the outline specifies it.
+Rules:
+1. Base the blog strictly on the provided outline.
+2. Use natural, fluent grammar — human-like and typo-free.
+3. Format using Markdown: use H2 and H3 for headings.
+4. Avoid hallucinating facts or making up names/dates.
+5. No fluff. Provide real, engaging, and informative content.
+6. Use the tone and voice consistently throughout.
+7. Do NOT repeat the outline.
+8. No bullet points unless specified.
 
-Start the blog below:
+Write a full blog post with:
+- Brief introduction
+- Full-length body (min. 800–1000 words)
+- Strong conclusion with call to action if applicable
+
+Start writing now:
 `;
 }

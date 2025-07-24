@@ -1,12 +1,10 @@
-
-
 export function createPrompt(keyword: string): string {
   return `
-You are an expert SEO strategist.
+You are a professional SEO analyst.
 
-Your task is to analyze a given keyword and determine the user's **search intent**.
+Given the keyword: "${keyword}", determine the user's **search intent**.
 
-Choose ONLY one of the following intent categories:
+Only choose ONE from this fixed list:
 - Informational
 - Commercial
 - Transactional
@@ -16,16 +14,14 @@ Choose ONLY one of the following intent categories:
 - Local
 - Listicle
 
-Return a JSON object like this:
+Respond strictly in this JSON format:
 {
-  "keyword": "how to improve SEO in 2024",
+  "keyword": "example keyword",
   "intent": "Informational",
-  "confidence": 0.92,
-  "explanation": "User wants to learn techniques, not buy something."
+  "confidence": 0.95,
+  "explanation": "Reasoning in 1–2 sentences"
 }
 
-Only respond with JSON. No commentary.
-
-Keyword: "${keyword}"
-`;
+⚠️ Do not include any markdown, explanation, or extra text. Return JSON only.
+  `.trim();
 }

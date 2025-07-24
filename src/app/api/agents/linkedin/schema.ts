@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const LinkedInTeaserSchema = z.object({
-  teaser: z.string().min(30, "Teaser is too short"),
+  teaser: z.string()
+    .min(30, "Teaser is too short")
+    .max(600, "Teaser is too long"),
 });
 
 export type LinkedInTeaserInput = {

@@ -5,7 +5,7 @@ import {
   countTokens,
   isWithinTokenLimit,
   splitTextByTokenLimit,
-} from "@/app/api/utils/tokenUtils";
+} from "@/app/api/utils/tokenUtils"; 
 
 const MAX_TOKENS = 2048;
 
@@ -57,10 +57,12 @@ export async function POST(req: NextRequest) {
           { role: "system", content: "You are a helpful blog writer." },
           { role: "user", content: prompt },
         ],
-        temperature: 0.7,
+        temperature: 0.5,
         max_tokens: MAX_TOKENS,
       }),
     });
+ 
+
 
     const data = await response.json();
     const blog = data.choices?.[0]?.message?.content?.trim();

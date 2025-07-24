@@ -16,8 +16,12 @@ const oauth = new OAuth({
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const oauthToken = searchParams.get("oauth_token")!;
-  const oauthVerifier = searchParams.get("oauth_verifier")!;
+  const oauthToken = searchParams.get("oauth_token");
+  const oauthVerifier = searchParams.get("oauth_verifier");
+
+  if (!oauthToken || !oauthVerifier) {
+    return NextResponse.json({ error: "Missing oauth_token or oauth_verifier" }, { status: 400 });
+  }
 
   const res = await fetch("https://api.twitter.com/oauth/access_token", {
     method: "POST",
@@ -39,12 +43,26 @@ export async function GET(req: NextRequest) {
     }),
   });
 
+  if (!res.ok) {
+    console.error("Twitter OAuth Callback Error:", await res.text());
+    return NextResponse.json({ error: "Failed to obtain access token" }, { status: 500 });
+  }
+
   const text = await res.text();
   const params = new URLSearchParams(text);
 
+  const oauthTokenFinal = params.get("oauth_token");
+  const oauthTokenSecret = params.get("oauth_token_secret");
+  const userId = params.get("user_id");
+  const screenName = params.get("screen_name");
+
+  if (!oauthTokenFinal || !oauthTokenSecret || !screenName) {
+    return NextResponse.json({ error: "Incomplete Twitter response" }, { status: 500 });
+  }
+
+  // Optionally save to DB or session here
+
   return NextResponse.redirect(
-    `http://localhost:3000/dashboard?twitter_token=${params.get("oauth_token")}&screen_name=${params.get(
-      "screen_name"
-    )}`
+    `http://localhost:3000/dashboard?twitter_token=${oauthTokenFinal}&screen_name=${screenName}`
   );
 }

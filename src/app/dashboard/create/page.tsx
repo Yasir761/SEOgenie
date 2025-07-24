@@ -4,24 +4,14 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
+  Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select"
 import {
-  Sparkles,
-  Loader2,
-  PenSquare,
-  BrainCog,
-  Layers,
-  PenLine,
-  BarChart3,
+  Sparkles, Loader2, PenSquare,
 } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
+import BlogEditor from "@/components/blog/blogEditor"
 
 export default function GenerateBlogPage() {
   const [keyword, setKeyword] = useState("")
@@ -29,7 +19,7 @@ export default function GenerateBlogPage() {
   const [length, setLength] = useState("medium")
   const [blog, setBlog] = useState("")
   const [loading, setLoading] = useState(false)
-  const [phase, setPhase] = useState<"input" | "generating">("input")
+  const [phase, setPhase] = useState<"input" | "generating" | "edit">("input")
   const [activeAgent, setActiveAgent] = useState<number>(-1)
 
   const agentSequence = [
@@ -45,21 +35,30 @@ export default function GenerateBlogPage() {
     setBlog("")
     for (let i = 0; i < agentSequence.length; i++) {
       setActiveAgent(i)
-      await new Promise((r) => setTimeout(r, 800))
+      await new Promise((r) => setTimeout(r, 800)) // simulate loading
     }
-    const generated = `# Blog on "${keyword}"
-\nThis is a ${tone} blog post about ${keyword} with ${length} length.`
+
+    const generated = `
+<h2>📢 Blog on "${keyword}"</h2>
+<p>This is a <strong>${tone}</strong> blog post about <strong>${keyword}</strong> with <em>${length}</em> length.</p>
+<p>You can now edit this blog with full AI control 👇</p>
+`
     setBlog(generated)
     setLoading(false)
     setActiveAgent(-1)
+    setPhase("edit")
+  }
+
+  const handleSave = (updated: string) => {
+    console.log("✅ Final blog content:", updated)
+    // You can send it to API here.
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
+    <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
         <h1 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text flex justify-center items-center gap-3">
-          <PenSquare className="w-8 h-8" /> Welcome to Blog Creation
+          <PenSquare className="w-8 h-8" /> Generate Blog
         </h1>
         <p className="text-muted-foreground mt-2 text-base sm:text-lg">
           Enter your keyword and watch intelligent agents bring your blog to life 🧠✨
@@ -161,18 +160,20 @@ export default function GenerateBlogPage() {
                 </div>
               ))}
             </div>
+          </motion.div>
+        )}
 
-            {blog && (
-              <div className="mt-8">
-                <Label className="text-lg mb-2 block">📝 Preview</Label>
-                <Textarea
-                  value={blog}
-                  rows={12}
-                  readOnly
-                  className="font-mono bg-muted/20 border border-border rounded-lg p-4 resize-none shadow-inner"
-                />
-              </div>
-            )}
+        {phase === "edit" && blog && (
+          <motion.div
+            key="editor"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="mt-10"
+          >
+            <Label className="text-lg mb-2 block">📝 Final Blog Editor</Label>
+            <BlogEditor content={blog} onSave={handleSave} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,4 +1,3 @@
-// app/api/integrations/google/callback/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getTokensFromCode } from "../auth";
 
@@ -7,15 +6,22 @@ export async function GET(req: NextRequest) {
   const code = url.searchParams.get("code");
 
   if (!code) {
-    return NextResponse.json({ error: "Authorization code not found" }, { status: 400 });
+    console.warn("❌ No authorization code in callback URL");
+    return NextResponse.json({ error: "Authorization code not found in URL" }, { status: 400 });
   }
 
   try {
     const tokens = await getTokensFromCode(code);
-    // Optionally save tokens to DB or session here
-    return NextResponse.redirect("/dashboard?google=connected");
+
+    if (!tokens || !tokens.access_token) {
+      return NextResponse.json({ error: "Failed to obtain Google tokens" }, { status: 401 });
+    }
+
+    // TODO: Save tokens in DB/session associated with user
+
+    return NextResponse.redirect(`${process.env.FRONTEND_URL || "http://localhost:3000"}/dashboard?google=connected`);
   } catch (err) {
-    console.error("OAuth Callback Error:", err);
+    console.error("⚠️ OAuth Callback Error:", err);
     return NextResponse.json({ error: "OAuth callback failed" }, { status: 500 });
   }
 }

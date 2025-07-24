@@ -1,20 +1,22 @@
 export function createEnhancementPrompt(original: string, enhanced: string): string {
   return `
-Compare the following original and enhanced blog versions.
+You are a content comparison expert.
 
-Original:
+Compare the following two versions of a blog post:
+
+Original Version:
 ${original}
 
-Enhanced:
+Enhanced Version:
 ${enhanced}
 
 Instructions:
-- Summarize what has changed.
-- Highlight improvements in tone, SEO, structure, clarity.
-- List added/removed sections.
-- Estimate how much better the new version is.
+- Clearly analyze improvements in SEO, structure, clarity, and tone.
+- List sections added, removed, or modified.
+- Identify keyword additions if possible.
+- Estimate SEO score improvement from 0 to 1.
+- Return ONLY valid JSON:
 
-Output a JSON with:
 {
   "title_changed": boolean,
   "meta_changed": boolean,
@@ -27,6 +29,6 @@ Output a JSON with:
   "summary": string
 }
 
-Respond with JSON only, no explanation.
-`
+Output JSON only. No explanation or intro.
+  `.trim();
 }

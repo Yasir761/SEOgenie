@@ -24,26 +24,30 @@ export async function POST(req: NextRequest) {
           { role: "system", content: "You are a LinkedIn content strategist." },
           { role: "user", content: prompt }
         ],
-        temperature: 0.5
+        temperature: 0.4,
       })
     });
 
     const json = await res.json();
-    const teaser = json.choices?.[0]?.message?.content?.trim();
+    let teaser = json.choices?.[0]?.message?.content?.trim() || "";
+
+    // Remove Markdown artifacts like ``` or """
+    teaser = teaser.replace(/```[\s\S]*?```/g, "").replace(/["“”]+/g, "").trim();
 
     const validated = LinkedInTeaserSchema.safeParse({ teaser });
 
     if (!validated.success) {
+      console.error("❌ Teaser validation failed:", validated.error.flatten());
       return NextResponse.json({
         error: "Validation failed",
         raw: teaser,
-        issues: validated.error.flatten()
+        issues: validated.error.flatten(),
       }, { status: 422 });
     }
 
     return NextResponse.json(validated.data);
   } catch (err) {
-    console.error("❌ LinkedIn Teaser Agent Error:", err);
+    console.error("💥 LinkedIn Teaser Agent Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

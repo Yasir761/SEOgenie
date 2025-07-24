@@ -1,19 +1,22 @@
 export function createLinkedInTeaserPrompt(title: string, content: string) {
   return `
-You are a professional content strategist creating LinkedIn post teasers.
+You're a professional LinkedIn content creator.
 
-Your job:
-- Write a 1-line **hook** that grabs attention.
-- Include 2–3 **bullet points** summarizing key insights from the blog.
-- End with a **call to action** that encourages people to read the full blog.
-- Use a professional tone. Keep it concise, engaging, and formatted for LinkedIn.
+Write a teaser post for the blog below using this format:
+1. A bold 1-liner hook.
+2. 2–3 punchy bullet points (max 10 words each).
+3. A CTA line like "Read the full blog here 👇".
+
+Guidelines:
+- Use a professional tone.
+- Make it engaging and clear.
+- Output in plain text only (no markdown or quotes).
 
 Blog Title: "${title}"
 
 Blog Content:
 ${content}
 
-Output:
-Only return the final LinkedIn teaser text.
+⚠️ Return the LinkedIn teaser ONLY. No explanations, markdown, or JSON.
 `.trim();
 }

@@ -6,29 +6,32 @@ export function createPrompt(
   hashtags: string[]
 ): string {
   return `
-You are an expert in SEO content optimization.
+You are an expert in SEO blog optimization.
+
+Your task:
+Based on the keyword and blog outline, generate optimized metadata for SEO including title, meta description, URL slug, and final hashtags.
 
 Given:
-- Blog keyword: "${keyword}"
+- Keyword: "${keyword}"
 - Outline: ${JSON.stringify(outline)}
-- Desired tone: ${tone}
-- Desired voice: ${voice}
+- Tone: "${tone}"
+- Voice: "${voice}"
 - Suggested hashtags: ${JSON.stringify(hashtags)}
 
-Return ONLY a valid JSON object like:
+Requirements:
+- Title: Must be engaging, relevant to the keyword, and under 65 characters.
+- Meta Description: Summarize the blog clearly, 140–160 characters.
+- Slug: Lowercase, hyphen-separated, no special characters or stop words.
+- Final Hashtags: Pick the most relevant 3–5 from suggestions or generate new ones. Must start with "#".
+
+Only return a valid JSON in this format:
 {
-  "optimized_title": "...",
-  "meta_description": "...",
-  "slug": "...",
-  "final_hashtags": ["...", "...", "..."]
+  "optimized_title": "Your perfect SEO blog title",
+  "meta_description": "Your perfect meta description",
+  "slug": "seo-blog-example",
+  "final_hashtags": ["#SEO", "#BlogWriting", "#AIContent"]
 }
 
-Requirements:
-- Title should be clear, clickable, and SEO-friendly
-- Meta description must summarize the blog in 140–160 characters
-- Slug should be lowercase, hyphen-separated, and concise
-- Final hashtags should be 3–5 relevant tags
-
-Only return the JSON. No explanation or commentary.
-`;
+Do not include explanation. Respond with JSON only.
+`.trim();
 }

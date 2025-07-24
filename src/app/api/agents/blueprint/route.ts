@@ -17,14 +17,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing keyword or tone" }, { status: 400 });
   }
 
-  const systemPrompt = createPrompt(keyword, tone);
+  const prompt = createPrompt(keyword, tone);
 
-  // ✅ Token safety check
-  if (!isWithinTokenLimit(systemPrompt, MAX_TOKENS)) {
-    const trimmed = splitTextByTokenLimit(systemPrompt, MAX_TOKENS)[0] || "";
-    console.warn("⚠️ Prompt too long. Using trimmed prompt.");
+  if (!isWithinTokenLimit(prompt, MAX_TOKENS)) {
+    const trimmed = splitTextByTokenLimit(prompt, MAX_TOKENS)[0] || "";
+    console.warn("⚠️ Prompt too long. Using trimmed version.");
     return NextResponse.json({
-      warning: "Prompt exceeded token limit. Try with a shorter topic.",
+      warning: "Prompt exceeded token limit. Please shorten input.",
       trimmedPrompt: trimmed,
       tokens: countTokens(trimmed),
     }, { status: 413 });
@@ -34,27 +33,27 @@ export async function POST(req: NextRequest) {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "llama3-8b-8192",
         messages: [
-          { role: "system", content: "You are an expert blog strategist." },
-          { role: "user", content: systemPrompt }
+          { role: "system", content: "You are a concise blog strategist. Do not generate paragraphs." },
+          { role: "user", content: prompt }
         ],
-        temperature: 0.7,
+        temperature: 0.4, // 🔽 Lower temp for less hallucination
       })
     });
 
     const data = await response.json();
     const rawOutput = data.choices?.[0]?.message?.content || "";
 
-    // 🧠 Convert output into clean bullet points
+    // 💡 Clean + dedupe bullet points
     const outline = rawOutput
       .split(/\n|•|-/)
-      .map((line:string) => line.trim())
-      .filter((line:string) => line.length > 3);
+      .map((line: string) => line.trim())
+      .filter((line: string, i: number, arr: string[]) => line.length > 4 && arr.indexOf(line) === i);
 
     const result = BlogOutlineSchema.safeParse({ outline });
 
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ keyword, outline: result.data.outline });
   } catch (err) {
-    console.error("💥 Blueprint agent error:", err);
+    console.error("💥 Blueprint Agent Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

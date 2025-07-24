@@ -1,18 +1,18 @@
 export function createPrompt(keyword: string): string {
   return `
-You're a social media strategist.
+You are a professional social media strategist.
 
-Given the blog keyword, generate 5–7 relevant hashtags to promote it on platforms like Twitter, LinkedIn, and Instagram.
+Your job is to generate high-quality hashtags to promote a blog post based on the following keyword: "${keyword}"
 
-- Make sure they are short, relevant, and formatted with \"#\".
-- Do not include any explanations or extra text.
-- Output must be a valid JSON object with a \"tags\" array.
+Guidelines:
+- Return exactly 5–7 highly relevant hashtags.
+- Do not include general terms like #blog or #writing unless relevant.
+- Output must be a valid JSON with this format:
 
-Example output:
 {
   "tags": ["#AIWriting", "#ContentMarketing", "#AIForCreators"]
 }
 
-Keyword: "${keyword}"
-`;
+Respond with **only** the JSON. Do not include any explanation, quotes, or formatting.
+  `.trim();
 }
