@@ -9,44 +9,56 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import {
-  CheckCircle,
-  Upload,
   TrendingUp,
-  PenLine,
-  FileText,
-  ShieldCheck,
   Sparkles,
-  Wand2,
-  BrainCog,
+  FileText,
+  PenLine,
+  Upload,
 } from 'lucide-react'
 
 const howItWorksSteps = [
   {
-    title: 'Start With a Keyword',
-    summary: 'Kickstart your blog journey by entering just one keyword.',
+    title: 'Just Add a Keyword',
+    summary: 'Start with one idea — we’ll handle the rest.',
     description:
-      'Just type one keyword. SEOgenie instantly understands your intent and builds a smart outline optimized for rankings.',
+      'Type a single keyword and let Wordywrites handle the research. Behind the scenes, our AI agents analyze trends, hashtags, audience, and competition to give you a strong strategic starting point.',
     gradient: 'from-[#e0f2fe] via-[#e0e7ff] to-[#ede9fe]',
     delay: 0.1,
     icon: TrendingUp,
   },
   {
-    title: 'AI Does the Work',
-    summary:
-      'Let the engine generate content with SEO, structure, and quality built-in.',
+    title: 'SEO Strategy Engine',
+    summary: 'More than content — a full strategy.',
     description:
-      'Your blog is generated with compelling structure, SEO meta tags, internal links, CTAs, and even schema markup — no edits needed.',
+      'Our engine builds a growth-ready plan with optimized titles, relevant hashtags, smart tone adaptation, and teaser copy for sharing — all aligned to your keyword and audience.',
     gradient: 'from-[#fef3c7] via-[#fcd34d] to-[#fca5a5]',
+    delay: 0.15,
+    icon: Sparkles,
+  },
+  {
+    title: 'AI Blueprint Builder',
+    summary: 'A structure that performs.',
+    description:
+      'Wordywrites crafts a smart blog outline with proper H2s, H3s, CTAs, and alignment with tone and audience — so your blog is compelling before it’s even written.',
+    gradient: 'from-[#ede9fe] via-[#d8b4fe] to-[#f0abfc]',
     delay: 0.2,
-    icon: CheckCircle,
+    icon: FileText,
+  },
+  {
+    title: 'Blog Writing Magic',
+    summary: 'Written and refined by AI.',
+    description:
+      'Our AI Writer Agent generates the full blog, while the Editor Agent polishes tone, structure, and grammar. You get publish-ready content instantly.',
+    gradient: 'from-[#d1fae5] via-[#a7f3d0] to-[#99f6e4]',
+    delay: 0.25,
+    icon: PenLine,
   },
   {
     title: 'Export & Publish',
-    summary:
-      'Instantly export your blog or post it directly to your CMS.',
+    summary: 'Send it live anywhere.',
     description:
-      'Download as PDF or Google Doc, copy the HTML, or publish directly to your CMS. Your content is ready to go live in one click.',
-    gradient: 'from-[#d1fae5] via-[#a7f3d0] to-[#99f6e4]',
+      'Copy HTML, export to Google Docs or PDF, or publish directly to WordPress or Medium. Wordywrites supports your entire publishing workflow.',
+    gradient: 'from-[#e0f2fe] via-[#c7d2fe] to-[#fce7f3]',
     delay: 0.3,
     icon: Upload,
   },
@@ -57,8 +69,12 @@ export function HowItWorks() {
     <section className="py-24 scroll-mt-24" id="how-it-works">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
         <div className="text-center mb-10">
-          {/* <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">How It Works</h2> */}
-          {/* <p className="mt-2 text-lg text-gray-600">Just 3 simple steps to SEO magic</p> */}
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            How It Works
+          </h2>
+          <p className="mt-2 text-lg text-gray-600">
+            From one keyword to a full blog — powered by AI agents working together.
+          </p>
         </div>
         {howItWorksSteps.map((item, i) => (
           <motion.div

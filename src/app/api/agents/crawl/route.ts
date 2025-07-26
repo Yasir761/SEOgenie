@@ -10,7 +10,8 @@ import {
 } from "@/app/api/utils/tokenUtils";
 import { connectDB } from "@/app/api/utils/db";
 import { CrawledBlogModel } from "@/app/models/crawledBlog";
-import { auth } from "@clerk/nextjs/server"; // if using Clerk
+import { auth } from "@clerk/nextjs/server";
+import { checkProAccess } from "@/app/api/utils/useCredits"; 
 
 const parser = new Parser();
 const MAX_TOKENS = 2000;
@@ -24,9 +25,30 @@ export async function POST(req: NextRequest) {
 
   try {
     await connectDB();
+    const { userId } = await auth();
 
-    const { userId } = await auth(); // Clerk check optional
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    // ✅ Get user email from Clerk
+    const userRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`
+      }
+    });
+
+    const user = await userRes.json();
+    const email = user?.email_addresses?.[0]?.email_address;
+
+    if (!email) {
+      return NextResponse.json({ error: "User email not found" }, { status: 403 });
+    }
+
+    // 🔐 Only Pro users allowed
+    await checkProAccess(email);
+
+    // 📰 Parse feed
     const feed = await parser.parseURL(rssUrl);
     const firstItem = feed.items?.[0];
 
@@ -37,8 +59,6 @@ export async function POST(req: NextRequest) {
     const res = await fetch(firstItem.link);
     const html = await res.text();
     const $ = cheerio.load(html);
-
-    // 📄 Fallback strategy for scraping
     const paragraphs = $("article p, div.post-content p, p").map((_, el) => $(el).text()).get();
     const content = paragraphs.join("\n").trim();
 
@@ -49,7 +69,6 @@ export async function POST(req: NextRequest) {
     const title = firstItem.title;
     const meta = $("meta[name='description']").attr("content") || "";
 
-    // 🔁 Run AI agents
     const [intent, toneVoice, seo] = await Promise.all([
       fetch("http://localhost:3000/api/agents/keyword", {
         method: "POST",
@@ -76,7 +95,6 @@ export async function POST(req: NextRequest) {
       }).then(res => res.json())
     ]);
 
-    // ✍️ Enhancement Prompt
     const enhancedPrompt = `
 You are an expert blog editor. Improve the following blog post:
 
@@ -107,7 +125,6 @@ Only return the enhanced blog content.
       }, { status: 413 });
     }
 
-    // 🎯 Enhance
     const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -131,7 +148,6 @@ Only return the enhanced blog content.
       return NextResponse.json({ error: "Enhanced blog is too short or missing." }, { status: 500 });
     }
 
-    // 🔍 Diff comparison
     const diffPrompt = createEnhancementPrompt(content, enhancedBlog);
 
     if (!isWithinTokenLimit(diffPrompt, MAX_TOKENS)) {
@@ -194,7 +210,6 @@ Only return the enhanced blog content.
       }, { status: 422 });
     }
 
-    // ✅ Save to DB
     await CrawledBlogModel.create({
       userId,
       sourceUrl: rssUrl,

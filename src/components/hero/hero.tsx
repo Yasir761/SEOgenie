@@ -11,6 +11,7 @@ import {
   ExternalLink,
   FileText,
   Sparkles,
+  SearchCheck,
 } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -27,8 +28,8 @@ const desktopFeatures: Feature[] = [
   { icon: TrendingUp, label: "Boost Rankings", x: 40, y: 40, delay: 0 },
   { icon: PenLine, label: "AI-Written Blogs", x: 360, y: 60, delay: 0.1 },
   { icon: ClipboardCopy, label: "Copy to Clipboard", x: 80, y: 340, delay: 0.2 },
-  { icon: FileText, label: "Meta Descriptions", x: 390, y: 360, delay: 0.3 },
-  { icon: LucideLink, label: "Internal Links", x: 30, y: 200, delay: 0.4 },
+  { icon: FileText, label: "Auto Snippets", x: 390, y: 360, delay: 0.3 },
+  { icon: SearchCheck, label: "Analyzer", x: 30, y: 200, delay: 0.4 },
   { icon: ExternalLink, label: "Export Anywhere", x: 310, y: 10, delay: 0.5 },
   { icon: Repeat, label: "Auto Posting", x: 190, y: 420, delay: 0.6 },
 ]
@@ -135,7 +136,7 @@ export default function Home() {
       <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left Content */}
         <div className="space-y-6 text-center md:text-left">
-          <motion.div
+          {/* <motion.div
             className="inline-flex items-center gap-2 text-sm font-medium bg-blue-50 text-blue-700 px-3 py-1 rounded-full w-fit mx-auto md:mx-0"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -143,7 +144,7 @@ export default function Home() {
           >
             <Sparkles className="w-4 h-4 text-blue-600" />
             <span>Used by 2,300+ creators to generate blogs</span>
-          </motion.div>
+          </motion.div> */}
 
           <AnimatedHeadline />
 

@@ -2,22 +2,29 @@ import { NextRequest, NextResponse } from "next/server"
 import { createPrompt } from "./prompt"
 import { AnalyzeAgentSchema } from "./schema"
 import {
-  countTokens,
   isWithinTokenLimit,
   splitTextByTokenLimit
 } from "@/app/api/utils/tokenUtils"
+import { connectDB } from "@/app/api/utils/db"
+import { UserModel } from "@/app/models/user"
+import { checkAndConsumeCredit } from "@/app/api/utils/useCredits"
 
-const MAX_TOKENS = 2000 // adjust if needed
+const MAX_TOKENS = 2000
 
 export async function POST(req: NextRequest) {
-  const { keyword } = await req.json()
+  const { keyword, email } = await req.json()
 
-  if (!keyword) {
-    return NextResponse.json({ error: "Missing keyword" }, { status: 400 })
+  if (!keyword || !email) {
+    return NextResponse.json({ error: "Missing keyword or email" }, { status: 400 })
   }
 
   try {
-    // 1. 🔍 Fetch SERP Data via SerpAPI
+    await connectDB()
+
+    // 🔐 Enforce plan and consume credit if needed
+    await checkAndConsumeCredit(email) // <-- handles Pro bypass and Free/Starter enforcement
+
+    // 🔍 Fetch SERP data via SerpAPI (only used after credit check)
     const serpRes = await fetch(
       `https://serpapi.com/search.json?q=${encodeURIComponent(keyword)}&api_key=${process.env.SERP_API_KEY}`
     )
@@ -29,20 +36,19 @@ export async function POST(req: NextRequest) {
 
     const organicResults = serpJson.organic_results.slice(0, 5)
 
-    // 2. 🧠 Create Prompt
+    // 🧠 Create prompt
     const prompt = createPrompt(keyword, organicResults)
 
     if (!isWithinTokenLimit(prompt, MAX_TOKENS)) {
       const chunks = splitTextByTokenLimit(prompt, MAX_TOKENS)
-
       return NextResponse.json({
         error: "Prompt too long",
         chunks,
-        suggestion: "Consider reducing number of SERP results or truncating content."
-      }, { status: 413 }) // 413: Payload Too Large
+        suggestion: "Reduce number of SERP results or truncate content."
+      }, { status: 413 })
     }
 
-    // 3. 🤖 AI call to Groq
+    // 🤖 Call Groq for AI completion
     const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -90,8 +96,8 @@ export async function POST(req: NextRequest) {
       ...validation.data
     })
 
-  } catch (err) {
+  } catch (err: any) {
     console.error("🔍 Analyze Agent Fatal Error:", err)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 })
   }
 }

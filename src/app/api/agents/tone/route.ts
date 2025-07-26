@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPrompt } from "./prompt";
 import { ToneSchema } from "./schema";
+import { auth } from "@clerk/nextjs/server";
+import { checkAndConsumeCredit } from "@/app/api/utils/useCredits";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -10,9 +12,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing keyword" }, { status: 400 });
   }
 
-  const prompt = createPrompt(keyword);
-
   try {
+    // 🔐 Authenticate and get user email
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const userRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+      },
+    });
+
+    const user = await userRes.json();
+    const email = user?.email_addresses?.[0]?.email_address;
+
+    if (!email) return NextResponse.json({ error: "User email not found" }, { status: 403 });
+
+    // ✅ Check plan and consume credit if applicable
+    await checkAndConsumeCredit(email, { allowOnly: ["Starter", "Pro"] });
+
+    const prompt = createPrompt(keyword);
+
     const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {

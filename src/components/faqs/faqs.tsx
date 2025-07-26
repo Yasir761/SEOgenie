@@ -2,28 +2,48 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const faqs = [
   {
-    question: 'How does SEOgenie work with just one keyword?',
+    question: 'What do I need to get started?',
     answer:
-      'You enter a single keyword and our AI generates a full-length, SEO-optimized blog post complete with structure, meta data, internal links, and more.',
+      'Just one keyword. Wordywrites will generate a full-length, optimized blog for you — no setup or prior knowledge needed.',
   },
   {
-    question: 'Can I customize the blog tone and structure?',
+    question: 'Can I adjust tone, style, or audience?',
     answer:
-      'Yes. You can select the tone, word count, and outline preferences before generating content.',
+      'Absolutely. You can choose from tones like informative, casual, formal, or promotional, and tailor it to your target audience.',
   },
   {
-    question: 'Do I need to connect a CMS to use it?',
+    question: 'Will the blogs be SEO optimized?',
     answer:
-      'No. You can download your content or export it to PDF, Google Docs, or even copy HTML. CMS integration is optional.',
+      'Yes. Our engine applies modern SEO practices — optimized titles, structured outlines, and relevant keywords to help you rank.',
   },
   {
-    question: 'Is the generated content plagiarism-free?',
+    question: 'Is the content really plagiarism-free?',
     answer:
-      'Absolutely. All outputs are scanned for originality and passed through AI-powered plagiarism checks.',
+      '100%. We run all generated content through AI-powered plagiarism checks to ensure originality and safety.',
+  },
+  {
+    question: 'Can I export the content easily?',
+    answer:
+      'Yes — you can download as PDF, export to Google Docs, or publish directly to WordPress or Medium.',
+  },
+  {
+    question: 'Will my data be saved or reused?',
+    answer:
+      'No. Your inputs and generated content are private and never reused or stored beyond your account history.',
+  },
+  {
+    question: 'Do I need to connect my CMS to use it?',
+    answer:
+      'No. CMS integration is optional. You can use all features manually too.',
+  },
+  {
+    question: 'How is Wordywrites different from ChatGPT?',
+    answer:
+      'Unlike general AI tools, Wordywrites is purpose-built for SEO blog writing with dedicated AI agents, structured workflows, and publishing tools.',
   },
 ]
 
@@ -37,15 +57,12 @@ export default function FAQSection() {
   return (
     <section className="py-24 px-4 sm:px-8 max-w-4xl mx-auto" id="faq">
       <div className="text-center mb-12">
-        {/* <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 font-heading">
-          🧐 FAQ
-        </h2> */}
-        <p className="text-gray-600 text-lg sm:text-xl font-semibold mt-2">
+        <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 font-heading">
           Frequently Asked Questions
-        </p>
+        </h2>
         <p className="text-gray-500 mt-4 text-sm sm:text-base">
-          Have a question that needs a human to answer?{' '}
-          <a href="#contact" className="text-indigo-600 hover:underline">
+          Still curious?{' '}
+          <a href="/contact" className="text-indigo-600 hover:underline">
             Contact us →
           </a>
         </p>
@@ -55,7 +72,7 @@ export default function FAQSection() {
         {faqs.map((faq, i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl px-5 sm:px-6 py-4 shadow-md cursor-pointer"
+            className="bg-white rounded-2xl px-5 sm:px-6 py-4 shadow-md cursor-pointer transition-all duration-200 hover:shadow-lg"
             onClick={() => toggleFAQ(i)}
           >
             <div className="flex items-center justify-between">
@@ -68,19 +85,25 @@ export default function FAQSection() {
                 }`}
               />
             </div>
-            {openIndex === i && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="pt-3 text-sm sm:text-base text-gray-600"
-              >
-                {faq.answer}
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {openIndex === i && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="pt-3 text-sm sm:text-base text-gray-600"
+                >
+                  {faq.answer}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
+
+      <p className="text-center mt-10 text-sm text-gray-500">
+        Trusted by founders, marketers, and creators around the world.
+      </p>
     </section>
   )
 }

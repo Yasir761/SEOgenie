@@ -1,89 +1,77 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { checkAndConsumeCredit } from "@/app/api/utils/useCredits";
 import { createPrompt } from "./prompt";
 import { SEOOptimizerSchema } from "./schema";
-import {
-  countTokens,
-  isWithinTokenLimit,
-  splitTextByTokenLimit
-} from "@/app/api/utils/tokenUtils";
-
-const MAX_TOKENS = 2048;
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { keyword, outline, tone, voice, tags } = body;
+  const { keyword, outline, tone, voice, tags } = await req.json();
 
   if (!keyword || !outline || !tone || !voice || !tags) {
-    return NextResponse.json({ error: "Missing one or more required fields" }, { status: 400 });
-  }
-
-  const prompt = createPrompt(keyword, outline, tone, voice, tags);
-
-  if (!isWithinTokenLimit(prompt, MAX_TOKENS)) {
-    const chunks = splitTextByTokenLimit(prompt, MAX_TOKENS);
-    return NextResponse.json({
-      error: "Prompt too long",
-      suggestion: "Try trimming outline or tags",
-      tokens: countTokens(prompt),
-      chunks,
-    }, { status: 413 });
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
   try {
-    const aiRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    // 🔐 Auth & get email from Clerk
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+      },
+    });
+
+    const user = await userRes.json();
+    const email = user?.email_addresses?.[0]?.email_address;
+
+    if (!email) {
+      return NextResponse.json({ error: "User email not found" }, { status: 403 });
+    }
+
+    // ✅ Enforce pricing (Free plan blocked after 0 credits)
+    await checkAndConsumeCredit(email);
+
+    // 🧠 Create prompt
+    const prompt = createPrompt(keyword, outline, tone, voice, tags);
+
+    // 🤖 Call OpenAI
+    const aiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "gpt-4o-mini",
         messages: [
-          { role: "system", content: "You are an SEO optimization expert." },
-          { role: "user", content: prompt }
+          { role: "system", content: "You are an SEO blog optimizer." },
+          { role: "user", content: prompt },
         ],
-        temperature: 0.5,
+        temperature: 0.4,
       }),
     });
 
-    const aiJson = await aiRes.json();
-    const raw = aiJson.choices?.[0]?.message?.content?.trim();
+    const json = await aiRes.json();
+    const output = json.choices?.[0]?.message?.content?.trim() || "";
 
-    if (!raw) {
-      return NextResponse.json({ error: "No response from model." }, { status: 500 });
-    }
+    const validated = SEOOptimizerSchema.safeParse({ optimized: output });
 
-    let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (err) {
-      console.error("❌ Failed to parse JSON:", err, "\nOutput:", raw);
-      return NextResponse.json({ error: "Invalid JSON from model", raw }, { status: 500 });
-    }
-
-    // ✨ Optional: Normalize slug & tags if needed
-    if (parsed.slug) {
-      parsed.slug = parsed.slug.toLowerCase().replace(/[^a-z0-9\-]/g, "").replace(/\s+/g, "-");
-    }
-    if (Array.isArray(parsed.final_hashtags)) {
-      parsed.final_hashtags = parsed.final_hashtags.map((t: string) =>
-        t.startsWith("#") ? t.trim() : `#${t.trim()}`
-      );
-    }
-
-    const validation = SEOOptimizerSchema.safeParse(parsed);
-    if (!validation.success) {
-      console.error("❌ Schema failed:", validation.error.format());
+    if (!validated.success) {
+      console.error("❌ SEO validation failed:", validated.error.flatten());
       return NextResponse.json({
-        error: "Invalid SEO structure",
-        issues: validation.error.flatten(),
-        raw: parsed
+        error: "Validation failed",
+        raw: output,
+        issues: validated.error.flatten(),
       }, { status: 422 });
     }
 
-    return NextResponse.json({ keyword, ...validation.data });
+    return NextResponse.json(validated.data);
   } catch (err) {
-    console.error("💥 SEO Agent fatal error:", err);
+    console.error("💥 SEO Optimizer Agent Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
