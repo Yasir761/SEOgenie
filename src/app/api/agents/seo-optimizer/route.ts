@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import { checkAndConsumeCredit } from "@/app/api/utils/useCredits";
 import { createPrompt } from "./prompt";
 import { SEOOptimizerSchema } from "./schema";
@@ -13,27 +13,27 @@ export async function POST(req: NextRequest) {
 
   try {
     // 🔐 Auth & get email from Clerk
-    const { userId } = await auth();
+    // const { userId } = await auth();
 
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // if (!userId) {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // }
 
-    const userRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      },
-    });
+    // const userRes = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+    //   },
+    // });
 
-    const user = await userRes.json();
-    const email = user?.email_addresses?.[0]?.email_address;
+    // const user = await userRes.json();
+    // const email = user?.email_addresses?.[0]?.email_address;
 
-    if (!email) {
-      return NextResponse.json({ error: "User email not found" }, { status: 403 });
-    }
+    // if (!email) {
+    //   return NextResponse.json({ error: "User email not found" }, { status: 403 });
+    // }
 
     // ✅ Enforce pricing (Free plan blocked after 0 credits)
-    await checkAndConsumeCredit(email);
+    // await checkAndConsumeCredit(email, { allowOnly: ["Starter", "Pro"] });
 
     // 🧠 Create prompt
     const prompt = createPrompt(keyword, outline, tone, voice, tags);
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     const json = await aiRes.json();
     const output = json.choices?.[0]?.message?.content?.trim() || "";
 
-    const validated = SEOOptimizerSchema.safeParse({ optimized: output });
+    const validated = SEOOptimizerSchema.safeParse(JSON.parse(output));
 
     if (!validated.success) {
       console.error("❌ SEO validation failed:", validated.error.flatten());

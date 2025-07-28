@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     await connectDB()
 
     // 🔐 Enforce plan and consume credit if needed
-    await checkAndConsumeCredit(email) // <-- handles Pro bypass and Free/Starter enforcement
+    await checkAndConsumeCredit(email, { allowOnly: ["Starter", "Pro"] }) // <-- handles Pro bypass and Free/Starter enforcement
 
     // 🔍 Fetch SERP data via SerpAPI (only used after credit check)
     const serpRes = await fetch(

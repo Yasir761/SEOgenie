@@ -13,23 +13,23 @@ const MAX_TOKENS = 2048
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { keyword, outline, tone, voice, seo, email } = body
+  const { keyword, outline, tone, seo } = body
 
-  if (!keyword || !outline || !tone || !voice || !seo?.optimized_title || !seo?.meta_description || !email) {
+  if (!keyword || !outline || !tone  || !seo?.optimized_title || !seo?.meta_description ) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
   }
 
   try {
     // 1. 🧠 Connect and check credit access
     await connectDB()
-    await checkAndConsumeCredit(email) // handles Free, Starter, Pro
+    // await checkAndConsumeCredit(email, { allowOnly: ["Starter", "Pro"] }) // handles Free, Starter, Pro
 
     // 2. 🧱 Create prompt
     const prompt = createPrompt({
       keyword,
       outline,
       tone,
-      voice,
+      voice: body.voice || "", // Provide voice from body or default to empty string
       title: seo.optimized_title,
       meta: seo.meta_description,
     })

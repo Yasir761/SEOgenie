@@ -14,7 +14,10 @@ const AGENT_ENDPOINTS = {
   blog: "/api/agents/blog"
 };
 
-const LOCALHOST = "http://localhost:3000";
+const BASE_URL = process.env.NODE_ENV === "development"
+  ? "http://localhost:3000"
+  : process.env.NEXT_PUBLIC_APP_URL; 
+
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -38,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     // 👉 Helper to call agents and handle errors
     const callAgent = async (path: string, body: any) => {
-      const res = await fetch(`${LOCALHOST}${path}`, {
+      const res = await fetch(`${BASE_URL}${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

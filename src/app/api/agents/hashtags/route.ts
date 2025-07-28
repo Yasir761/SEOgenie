@@ -29,18 +29,22 @@ export async function POST(req: NextRequest) {
     });
 
     const json = await res.json();
-    const rawOutput = json.choices?.[0]?.message?.content?.trim();
+    let rawOutput = json.choices?.[0]?.message?.content?.trim();
 
     if (!rawOutput) {
       return NextResponse.json({ error: "No content returned by LLM" }, { status: 500 });
     }
 
+    // 🧼 Sanitize common LLM output quirks (like ```json)
+    rawOutput = rawOutput.replace(/```json|```/g, "").trim();
+
+    // 🛡️ Try parsing with soft fix if needed
     let parsed;
     try {
-      // 🧼 Remove code block or markdown if present
-      const cleaned = rawOutput.replace(/```json|```/g, "").trim();
-      parsed = JSON.parse(cleaned);
+      const safeOutput = rawOutput.endsWith("}") ? rawOutput : rawOutput + "}";
+      parsed = JSON.parse(safeOutput);
     } catch (err) {
+      console.error("❌ JSON parse error in Hashtag agent:", err, "\nRaw:", rawOutput);
       return NextResponse.json({
         keyword,
         error: "❌ Failed to parse JSON from model",
@@ -48,9 +52,10 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
+    // ✅ Validate using zod
     const result = HashtagSchema.safeParse(parsed);
-
     if (!result.success) {
+      console.error("❌ Hashtag schema validation failed:", result.error.flatten());
       return NextResponse.json({
         keyword,
         error: "❌ Hashtag output format invalid",

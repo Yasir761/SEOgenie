@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Poppins } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
+import ClientOnly from "@/components/clientOnly"
 import "./globals.css"
 
 const inter = Inter({
@@ -31,7 +32,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
         <body className="font-sans bg-gradient-to-br from-[#f4f8ff] via-white to-[#fdf2f8] text-gray-800 min-h-screen antialiased">
-          {children}
+          <ClientOnly>{children}</ClientOnly>
         </body>
       </html>
     </ClerkProvider>
