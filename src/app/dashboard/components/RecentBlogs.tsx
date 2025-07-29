@@ -76,7 +76,7 @@ export default function RecentBlogs() {
                     onClick={() =>
                       window.location.assign(`/dashboard/blogs/${blog.id}`)
                     }
-                    className="cursor-pointer group transition-all hover:bg-white/60 backdrop-blur hover:shadow-sm"
+                    className="cursor-pointer group transition-all duration-200 hover:bg-gradient-to-r from-white/60 via-purple-50/30 to-cyan-50/30 backdrop-blur hover:shadow-sm"
                   >
                     <TableCell className="font-medium text-gray-800 group-hover:underline">
                       {blog.title}
@@ -86,7 +86,7 @@ export default function RecentBlogs() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={blog.exported ? "success" : "secondary"}
+                        variant={blog.exported ? "default" : "secondary"}
                         className="text-xs font-medium"
                       >
                         {blog.exported ? "Yes" : "No"}

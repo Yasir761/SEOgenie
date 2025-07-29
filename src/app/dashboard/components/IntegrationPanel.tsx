@@ -44,17 +44,23 @@ export default function IntegrationPanel() {
           >
             <Card
               className={clsx(
-                "group relative rounded-2xl p-5 shadow-sm transition-all border hover:shadow-lg",
+                "group relative rounded-2xl p-5 border backdrop-blur-md transition-all overflow-hidden shadow-sm hover:shadow-xl hover:scale-[1.015]",
                 item.connected
-                  ? "bg-white/80 border-green-100"
+                  ? "bg-white/80 border-green-100 ring-1 ring-green-200/30"
                   : "bg-white/60 border-gray-200"
               )}
             >
+              {/* Subtle shimmer gradient on hover */}
+              <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition duration-300 bg-gradient-to-br from-purple-100/20 via-transparent to-cyan-100/20 rounded-2xl" />
+
               <div className="flex items-center gap-3 mb-4">
-                <div className={clsx(
-                  "w-10 h-10 rounded-xl border p-1.5 shadow-sm flex items-center justify-center bg-white transition-all",
-                  item.connected && "group-hover:shadow-[0_0_0_4px_#d1fae5]"
-                )}>
+                <div
+                  className={clsx(
+                    "w-10 h-10 rounded-xl border p-1.5 shadow-sm flex items-center justify-center bg-white transition-all",
+                    item.connected &&
+                      "group-hover:shadow-[0_0_0_4px_#bbf7d0] border-green-100"
+                  )}
+                >
                   {item.logo ? (
                     <img
                       src={item.logo}
@@ -67,8 +73,9 @@ export default function IntegrationPanel() {
                     </div>
                   )}
                 </div>
+
                 <div>
-                  <div className="text-sm font-semibold text-gray-800">
+                  <div className="text-sm font-semibold text-gray-800 dark:text-white">
                     {item.name}
                   </div>
                   {item.connected ? (
@@ -88,13 +95,14 @@ export default function IntegrationPanel() {
               <div className="flex items-center justify-between mt-auto pt-2">
                 {item.connected ? (
                   <span className="text-xs text-muted-foreground">
-                    Last synced: <span className="text-foreground">{item.lastSynced}</span>
+                    Last synced:{" "}
+                    <span className="text-foreground">{item.lastSynced}</span>
                   </span>
                 ) : (
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="text-sm text-indigo-600 hover:bg-indigo-100"
+                    className="text-sm text-indigo-600 hover:bg-indigo-100 transition"
                   >
                     <Link2 className="w-4 h-4 mr-1" />
                     Connect

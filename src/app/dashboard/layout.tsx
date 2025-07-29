@@ -17,17 +17,12 @@ const poppins = Poppins({
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-//     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-// <body className="min-h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100">
-
-//     <div className="min-h-screen w-full bg-transparent"> 
-//       <DashboardShell>{children}</DashboardShell>
-//     </div>
-//   </body>
-// </html>
-
-    <div className="min-h-screen w-full bg-transparent">
-    <DashboardShell>{children}</DashboardShell>
+    <div
+      className={`min-h-screen w-full bg-gradient-to-br from-[#f0f4ff] via-white to-[#f7f2ff] bg-fixed ${inter.variable} ${poppins.variable}`}
+    >
+      <DashboardShell>
+        {children}
+      </DashboardShell>
     </div>
   )
 }

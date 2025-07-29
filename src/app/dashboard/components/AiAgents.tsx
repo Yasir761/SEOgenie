@@ -48,12 +48,15 @@ export default function AIAgentsPanel() {
           >
             <Card
               className={clsx(
-                "group relative flex flex-col justify-between rounded-2xl p-5 transition-all shadow-md hover:shadow-xl hover:scale-[1.02] backdrop-blur-md border",
+                "group relative flex flex-col justify-between rounded-2xl p-5 transition-all shadow-md backdrop-blur-md border overflow-hidden",
                 agent.active
-                  ? "bg-white/80 border-indigo-200"
-                  : "bg-white/50 border-gray-200"
+                  ? "bg-white/80 border-indigo-200 ring-1 ring-indigo-300/30"
+                  : "bg-white/60 border-gray-200"
               )}
             >
+              {/* shimmer glow */}
+              <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition duration-300 bg-gradient-to-br from-purple-100/20 via-transparent to-cyan-100/20 rounded-2xl" />
+
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className={clsx(
@@ -66,7 +69,7 @@ export default function AIAgentsPanel() {
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-800">
+                  <div className="text-sm font-semibold text-gray-800 dark:text-white">
                     {agent.name}
                   </div>
                   <div className="text-xs mt-0.5">
@@ -80,13 +83,13 @@ export default function AIAgentsPanel() {
                 </div>
               </div>
 
-              <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
                 {agent.description}
               </p>
 
               <div className="flex items-center justify-between mt-auto pt-2">
                 {agent.lastRun ? (
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
                     <span>{agent.lastRun}</span>
                   </div>
@@ -100,13 +103,13 @@ export default function AIAgentsPanel() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-gray-500 hover:text-indigo-600"
+                    className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400"
                   >
                     <Settings2 className="w-4 h-4 mr-1" />
                     Configure
                   </Button>
                   {agent.active ? (
-                    <Badge variant="success" className="text-xs">Active</Badge>
+                    <Badge variant="default" className="text-xs">Active</Badge>
                   ) : (
                     <Badge variant="destructive" className="text-xs">Inactive</Badge>
                   )}

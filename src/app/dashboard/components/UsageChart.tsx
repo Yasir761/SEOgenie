@@ -71,18 +71,24 @@ export default function BlogUsageChart() {
             value={range}
             onValueChange={(val) => val && setRange(val)}
             variant="outline"
-            className="flex gap-2"
+            className="flex gap-2 bg-white/60 border border-white/30 backdrop-blur-sm rounded-lg p-1"
           >
-            <ToggleGroupItem value="7d">7 Days</ToggleGroupItem>
-            <ToggleGroupItem value="30d">30 Days</ToggleGroupItem>
-            <ToggleGroupItem value="all">All Time</ToggleGroupItem>
+            <ToggleGroupItem value="7d" className="text-sm">
+              7 Days
+            </ToggleGroupItem>
+            <ToggleGroupItem value="30d" className="text-sm">
+              30 Days
+            </ToggleGroupItem>
+            <ToggleGroupItem value="all" className="text-sm">
+              All Time
+            </ToggleGroupItem>
           </ToggleGroup>
         </CardAction>
       </CardHeader>
 
       <CardContent className="pt-2">
         {loading ? (
-          <Skeleton className="w-full h-[280px] rounded-lg" />
+          <Skeleton className="w-full h-[280px] rounded-xl bg-gray-100/40 animate-pulse" />
         ) : isEmpty ? (
           <div className="flex items-center justify-center h-[280px] text-gray-500 text-sm">
             No blog data available for this range.

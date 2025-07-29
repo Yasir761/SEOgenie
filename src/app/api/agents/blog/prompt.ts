@@ -34,6 +34,8 @@ Rules:
 6. Use the tone and voice consistently throughout.
 7. Do NOT repeat the outline.
 8. No bullet points unless specified.
+9. Do NOT wrap the output in backticks or code blocks. Just return plain markdown content.
+
 
 Write a full blog post with:
 - Brief introduction
